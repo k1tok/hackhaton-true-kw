@@ -11,3 +11,10 @@ storage:
     username: postgres
     password: postgres
     database: postgres
+
+api:
+  osm_api:
+    nominatim_url: https://nominatim.openstreetmap.org/search
+    overpass_url: https://overpass-api.de/api/interpreter
+  list_org_api:
+    url: https://www.list-org.com/search
