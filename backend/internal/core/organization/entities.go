@@ -2,12 +2,12 @@ package organization
 
 type Organization struct {
 	ID             int            `json:"accountId"`
-	IsCommercial   bool           `json:"isCommercial"`
+	IsCommercial   bool           `json:"isCommercial,omitempty"`
 	Address        string         `json:"address"`
-	BuildingType   string         `json:"buildingType"`
-	RoomsCount     string         `json:"roomsCount"`
-	ResidentsCount string         `json:"residentsCount"`
-	Consumption    map[string]int `json:"consumption"`
+	BuildingType   string         `json:"buildingType,omitempty"`
+	RoomsCount     string         `json:"roomsCount,omitempty"`
+	ResidentsCount string         `json:"residentsCount,omitempty"`
+	Consumption    map[string]int `json:"consumption,omitempty"`
 }
 
 type OrganizationResult struct {

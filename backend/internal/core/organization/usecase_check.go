@@ -25,14 +25,16 @@ func (u *checkUseCase) Run(dta []Organization) ([]OrganizationResult, error) {
 	for _, org := range dta {
 		osmOrgs, err := u.osmAPI.Search(org.Address)
 		if err != nil {
-			return nil, err
+			if !apperr.IsErrorCode(err, apperr.ErrNotFound) {
+				return nil, err
+			}
 		}
-		fmt.Println(osmOrgs)
+		fmt.Println(len(osmOrgs))
 		listOrgs, err := u.listOrgAPI.Search(org.Address)
 		if err != nil {
 			return nil, err
 		}
-		fmt.Println(listOrgs)
+		fmt.Println(len(listOrgs))
 	}
 	return nil, nil
 }

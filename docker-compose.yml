@@ -4,6 +4,6 @@ services:
     container_name: app-api
     restart: always
     ports:
-      - "80:80"
+      - "8080:80"
     environment:
       - ./backend/.env

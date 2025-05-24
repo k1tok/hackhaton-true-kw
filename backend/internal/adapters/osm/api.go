@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 	"true-kw/config"
 	apperr "true-kw/errors"
 	"true-kw/internal/core/organization"
@@ -29,7 +30,8 @@ type OverpassResponse struct {
 }
 
 type OsmAPI struct {
-	config config.OsmAPI
+	config     config.OsmAPI
+	reqCounter int
 }
 
 func NewOsmAPI(config config.OsmAPI) *OsmAPI {
@@ -40,6 +42,9 @@ func NewOsmAPI(config config.OsmAPI) *OsmAPI {
 }
 func (a *OsmAPI) Search(address string) ([]organization.OsmObj, error) {
 	op := "OsmAPI.Search"
+	if a.reqCounter == 6 {
+		time.Sleep(1 * time.Second)
+	}
 	// 1. Получаем координаты через Nominatim
 	nominatimURL := a.config.NominatimURL
 	params := url.Values{}
@@ -51,6 +56,7 @@ func (a *OsmAPI) Search(address string) ([]organization.OsmObj, error) {
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
+	a.reqCounter++
 	if err != nil {
 		return nil, apperr.New(err, apperr.ErrInternal, "failed to make request", op)
 	}
@@ -68,9 +74,9 @@ func (a *OsmAPI) Search(address string) ([]organization.OsmObj, error) {
 	// Ищем POI в радиусе 100 метров (можно увеличить)
 	overpassQuery := `[out:json];
     (
-      node(around:100,` + lat + `,` + lon + `)[amenity];
-      node(around:100,` + lat + `,` + lon + `)[shop];
-      node(around:100,` + lat + `,` + lon + `)[office];
+      node(around:50,` + lat + `,` + lon + `)[amenity];
+      node(around:50,` + lat + `,` + lon + `)[shop];
+      node(around:50,` + lat + `,` + lon + `)[office];
     );
     out;`
 	overpassURL := a.config.OverpassURL
