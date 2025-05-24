@@ -10,6 +10,12 @@ type Organization struct {
 	Consumption    map[string]int `json:"consumption"`
 }
 
+type OrganizationResult struct {
+	ID           int     `json:"accountId"`
+	IsCommercial bool    `json:"isCommercial"`
+	Precision    float32 `json:"precision"`
+}
+
 type ListOrgAPIObj struct {
 	Name string `json:"name"`
 	Link string `json:"link"`

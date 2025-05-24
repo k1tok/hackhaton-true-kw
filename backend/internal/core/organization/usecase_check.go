@@ -17,7 +17,7 @@ func NewCheckUseCase(listOrgAPI ListOrgAPI, osmAPI OsmAPI) *checkUseCase {
 	}
 }
 
-func (u *checkUseCase) Run(dta []Organization) ([]Organization, error) {
+func (u *checkUseCase) Run(dta []Organization) ([]OrganizationResult, error) {
 	op := "CheckUseCase.Run"
 	if dta == nil {
 		return nil, apperr.New(nil, apperr.ErrInternal, "data is empty", op)

@@ -13,5 +13,5 @@ type Handler interface {
 
 // UseCases
 type CheckUseCase interface {
-	Run(dta []organization.Organization) ([]organization.Organization, error)
+	Run(dta []organization.Organization) ([]organization.OrganizationResult, error)
 }
