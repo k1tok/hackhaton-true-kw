@@ -3,11 +3,25 @@ import FieldsEnergyForm from "../../../widgets/FieldsEnergyForm/UI/FieldsEnergyF
 import type { IFormInput } from "../config/energyFormConfig";
 import styles from "../styles/EnergyForm.module.css";
 import ButtonSubmitForm from "../../../shared/ButtonSubmitForm/UI/ButtonSubmitForm";
+import { useStore } from "../../../app/store/store";
+import { parseJson } from "../../../tools/parseJson";
 
 const EnergyForm = () => {
-	const { register, handleSubmit } = useForm<IFormInput>();
-	const onSubmit: SubmitHandler<IFormInput> = (data) => {
+	const { state, setState } = useStore();
+
+	const addData = (data) => {
+		setState((prev) => [...prev, ...data]);
+	};
+
+	const { register, handleSubmit, reset } = useForm<IFormInput>();
+
+	const onSubmit: SubmitHandler<IFormInput> = async (data) => {
+		const jsonData = await parseJson(data);
+		const finalData = [data, ...jsonData];
+
+		addData(finalData);
 		console.log(data);
+		reset();
 	};
 
 	return (

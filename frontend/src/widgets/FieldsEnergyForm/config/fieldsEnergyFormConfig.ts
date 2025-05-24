@@ -5,6 +5,7 @@ export interface FieldsEnergyFormProps<T extends FieldValues> {
 }
 
 export const textFields = [
+	{ title: "Номер обращения", field: "accountId" },
 	{
 		title: "Адрес",
 		field: "address",

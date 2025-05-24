@@ -1,4 +1,5 @@
 export interface IFormInput {
+	accountId: number;
 	address: string;
 	buildingType: string;
 	roomsCount?: number;
@@ -7,5 +8,5 @@ export interface IFormInput {
 	consumption: {
 		[key: string]: number;
 	};
-	file: string;
+	file?: FileList;
 }
