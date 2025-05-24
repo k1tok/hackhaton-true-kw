@@ -10,3 +10,11 @@ export interface IFormInput {
 	};
 	file?: FileList;
 }
+
+export const isEmptyObject = (obj: any) => {
+	return Object.entries(obj)
+		.filter(([key]) => !["file", "anotherFieldToIgnore"].includes(key))
+		.every(
+			([_, value]) => value === "" || value === null || value === undefined
+		);
+};

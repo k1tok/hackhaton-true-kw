@@ -1,10 +1,10 @@
 import { useForm, type SubmitHandler } from "react-hook-form";
-import FieldsEnergyForm from "../../../widgets/FieldsEnergyForm/UI/FieldsEnergyForm";
-import type { IFormInput } from "../config/energyFormConfig";
-import styles from "../styles/EnergyForm.module.css";
-import ButtonSubmitForm from "../../../shared/ButtonSubmitForm/UI/ButtonSubmitForm";
 import { useStore } from "../../../app/store/store";
+import ButtonSubmitForm from "../../../shared/ButtonSubmitForm/UI/ButtonSubmitForm";
 import { parseJson } from "../../../tools/parseJson";
+import FieldsEnergyForm from "../../../widgets/FieldsEnergyForm/UI/FieldsEnergyForm";
+import { isEmptyObject, type IFormInput } from "../config/energyFormConfig";
+import styles from "../styles/EnergyForm.module.css";
 
 const EnergyForm = () => {
 	const { state, setState } = useStore();
@@ -17,10 +17,11 @@ const EnergyForm = () => {
 
 	const onSubmit: SubmitHandler<IFormInput> = async (data) => {
 		const jsonData = await parseJson(data);
-		const finalData = [data, ...jsonData];
+		const finalData = [data, ...jsonData].filter(
+			(item) => !isEmptyObject(item)
+		);
 
 		addData(finalData);
-		console.log(data);
 		reset();
 	};
 

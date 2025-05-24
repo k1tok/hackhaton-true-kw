@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import { useStore } from "../../../app/store/store";
-import { headersTable } from "../config/tableDataConfig";
+import { headersTable, renderConsumption } from "../config/tableDataConfig";
+import styles from "./../style/TableData.module.css";
 
 interface ITableData {
 	title: string;
@@ -12,40 +14,55 @@ const TableData = ({ title }: ITableData) => {
 	};
 
 	return (
-		<div>
-			<p>{title}</p>
-			<table>
-				<tr>
-					{headersTable.map(({ val }) => (
-						<td>{val}</td>
-					))}
-				</tr>
-				{state.length > 0 &&
-					state.map(
-						({
-							accountId,
-							address,
-							roomsCount,
-							residentsCount,
-							totalArea,
-							buildingType,
-						}) => (
+		<div className={styles.container}>
+			{state.length > 0 && (
+				<>
+					<p className={styles.title}>{title}</p>
+					<table className={styles.table}>
+						<thead>
 							<tr>
-								<td>{accountId}</td>
-								<td>{address}</td>
-								<td>{roomsCount}</td>
-								<td>{residentsCount}</td>
-								<td>{totalArea}</td>
-								<td>{buildingType}</td>
-								<td>
-									<button onClick={() => handleDelete(accountId)}>
-										Удалить
-									</button>
-								</td>
+								{headersTable.map(({ val }) => (
+									<th key={val}>{val}</th>
+								))}
 							</tr>
-						)
-					)}
-			</table>
+						</thead>
+						<tbody>
+							{state.length > 0 &&
+								state.map(
+									({
+										accountId,
+										address,
+										roomsCount,
+										residentsCount,
+										totalArea,
+										buildingType,
+										consumption,
+									}) => (
+										<tr key={accountId}>
+											<td>{accountId}</td>
+											<td>{address}</td>
+											<td>{roomsCount}</td>
+											<td>{residentsCount}</td>
+											<td>{totalArea}</td>
+											<td>{buildingType}</td>
+											<td className={styles.consumptionCell}>
+												{renderConsumption(consumption)}
+											</td>
+											<td>
+												<button
+													className={styles.deleteButton}
+													onClick={() => handleDelete(accountId)}
+												>
+													Удалить
+												</button>
+											</td>
+										</tr>
+									)
+								)}
+						</tbody>
+					</table>
+				</>
+			)}
 		</div>
 	);
 };
