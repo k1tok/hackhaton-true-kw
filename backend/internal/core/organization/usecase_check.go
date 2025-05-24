@@ -22,19 +22,34 @@ func (u *checkUseCase) Run(dta []Organization) ([]OrganizationResult, error) {
 	if dta == nil {
 		return nil, apperr.New(nil, apperr.ErrInternal, "data is empty", op)
 	}
+	osmOrgsChan := make(chan []OsmObj, 1)
+	listOrgsChan := make(chan []ListOrgAPIObj, 1)
+	errorOsmChan := make(chan error, 1)
+	errorListOrgChan := make(chan error, 1)
+	var result []OrganizationResult
 	for _, org := range dta {
-		osmOrgs, err := u.osmAPI.Search(org.Address)
-		if err != nil {
+		if org.Address == "" {
+			continue
+		}
+		go u.osmAPI.Search(org.Address, osmOrgsChan, errorOsmChan)
+		go u.listOrgAPI.Search(org.Address, listOrgsChan, errorListOrgChan)
+
+		if err := <-errorOsmChan; err != nil {
 			if !apperr.IsErrorCode(err, apperr.ErrNotFound) {
 				return nil, err
 			}
 		}
-		fmt.Println(len(osmOrgs))
-		listOrgs, err := u.listOrgAPI.Search(org.Address)
-		if err != nil {
-			return nil, err
+		if err := <-errorListOrgChan; err != nil {
+			if !apperr.IsErrorCode(err, apperr.ErrNotFound) {
+				return nil, err
+			}
 		}
+		osmOrgs := <-osmOrgsChan
+		listOrgs := <-listOrgsChan
+
 		fmt.Println(len(listOrgs))
+		fmt.Println(len(osmOrgs))
+		result = append(result, OrganizationResult{org.ID, false, 0.0})
 	}
-	return nil, nil
+	return result, nil
 }

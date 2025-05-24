@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"time"
 	"true-kw/config"
 	apperr "true-kw/errors"
 	"true-kw/internal/core/organization"
@@ -30,8 +29,7 @@ type OverpassResponse struct {
 }
 
 type OsmAPI struct {
-	config     config.OsmAPI
-	reqCounter int
+	config config.OsmAPI
 }
 
 func NewOsmAPI(config config.OsmAPI) *OsmAPI {
@@ -40,11 +38,8 @@ func NewOsmAPI(config config.OsmAPI) *OsmAPI {
 		config: config,
 	}
 }
-func (a *OsmAPI) Search(address string) ([]organization.OsmObj, error) {
+func (a *OsmAPI) Search(address string, orgsChan chan<- []organization.OsmObj, errorChan chan<- error) {
 	op := "OsmAPI.Search"
-	if a.reqCounter == 6 {
-		time.Sleep(1 * time.Second)
-	}
 	// 1. Получаем координаты через Nominatim
 	nominatimURL := a.config.NominatimURL
 	params := url.Values{}
@@ -56,9 +51,10 @@ func (a *OsmAPI) Search(address string) ([]organization.OsmObj, error) {
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
-	a.reqCounter++
+
 	if err != nil {
-		return nil, apperr.New(err, apperr.ErrInternal, "failed to make request", op)
+		orgsChan <- nil
+		errorChan <- apperr.New(err, apperr.ErrInternal, "failed to make request", op)
 	}
 	defer resp.Body.Close()
 
@@ -66,7 +62,8 @@ func (a *OsmAPI) Search(address string) ([]organization.OsmObj, error) {
 	var results []NominatimResult
 	json.Unmarshal(body, &results)
 	if len(results) == 0 {
-		return nil, apperr.New(nil, apperr.ErrNotFound, "координаты не найдены", op)
+		orgsChan <- nil
+		errorChan <- apperr.New(nil, apperr.ErrNotFound, "координаты не найдены", op)
 	}
 	lat, lon := results[0].Lat, results[0].Lon
 
@@ -82,7 +79,8 @@ func (a *OsmAPI) Search(address string) ([]organization.OsmObj, error) {
 	overpassURL := a.config.OverpassURL
 	overpassResp, err := http.Post(overpassURL, "application/x-www-form-urlencoded", strings.NewReader("data="+url.QueryEscape(overpassQuery)))
 	if err != nil {
-		return nil, apperr.New(err, apperr.ErrInternal, "failed to make request", op)
+		orgsChan <- nil
+		errorChan <- apperr.New(err, apperr.ErrInternal, "failed to make request", op)
 	}
 	defer overpassResp.Body.Close()
 	overpassBody, _ := ioutil.ReadAll(overpassResp.Body)
@@ -92,7 +90,8 @@ func (a *OsmAPI) Search(address string) ([]organization.OsmObj, error) {
 
 	// 3. Выводим организации
 	if len(overpassResult.Elements) == 0 {
-		return nil, apperr.New(nil, apperr.ErrNotFound, "организации не найдены", op)
+		orgsChan <- nil
+		errorChan <- apperr.New(nil, apperr.ErrNotFound, "организации не найдены", op)
 	}
 	var orgs []organization.OsmObj
 	for _, elem := range overpassResult.Elements {
@@ -110,5 +109,7 @@ func (a *OsmAPI) Search(address string) ([]organization.OsmObj, error) {
 
 		orgs = append(orgs, organization.OsmObj{Name: name, Type: category})
 	}
-	return orgs, nil
+	orgsChan <- orgs
+	errorChan <- nil
+
 }

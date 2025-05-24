@@ -5,7 +5,6 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
-	"time"
 	"true-kw/config"
 	apperr "true-kw/errors"
 	"true-kw/internal/core/organization"
@@ -14,9 +13,8 @@ import (
 )
 
 type ListOrgAPI struct {
-	config     config.ListOrgAPI
-	regex      *regexp.Regexp
-	reqCounter int
+	config config.ListOrgAPI
+	regex  *regexp.Regexp
 }
 
 func NewListOrgAPI(config config.ListOrgAPI) *ListOrgAPI {
@@ -27,11 +25,8 @@ func NewListOrgAPI(config config.ListOrgAPI) *ListOrgAPI {
 	}
 }
 
-func (a *ListOrgAPI) Search(address string) ([]organization.ListOrgAPIObj, error) {
+func (a *ListOrgAPI) Search(address string, orgsChan chan<- []organization.ListOrgAPIObj, errorChan chan<- error) {
 	op := "ListOrgAPI.Search"
-	if a.reqCounter == 10 {
-		time.Sleep(1 * time.Second)
-	}
 	baseURL := a.config.URL
 	params := url.Values{}
 	params.Add("type", "address")
@@ -40,21 +35,23 @@ func (a *ListOrgAPI) Search(address string) ([]organization.ListOrgAPIObj, error
 
 	req, err := http.NewRequest("GET", searchURL, nil)
 	if err != nil {
-		return nil, apperr.New(err, apperr.ErrInternal, "failed to create request", op)
+		orgsChan <- nil
+		errorChan <- apperr.New(err, apperr.ErrInternal, "failed to create request", op)
 	}
 	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; hakaton-true-kw/1.0; +http://your-site.ru/)")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
-	a.reqCounter++
 	if err != nil {
-		return nil, apperr.New(err, apperr.ErrInternal, "failed to make request", op)
+		orgsChan <- nil
+		errorChan <- apperr.New(err, apperr.ErrInternal, "failed to make request", op)
 	}
 	defer resp.Body.Close()
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		return nil, apperr.New(err, apperr.ErrInternal, "failed to parse HTML", op)
+		orgsChan <- nil
+		errorChan <- apperr.New(err, apperr.ErrInternal, "failed to parse HTML", op)
 	}
 	var orgs []organization.ListOrgAPIObj
 
@@ -92,5 +89,6 @@ func (a *ListOrgAPI) Search(address string) ([]organization.ListOrgAPIObj, error
 			}
 		}
 	})
-	return orgs, nil
+	orgsChan <- orgs
+	errorChan <- nil
 }
