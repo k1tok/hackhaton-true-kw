@@ -1,0 +1,10 @@
+.mainBlock{
+	display: flex;
+	justify-content: flex-start;
+	flex-direction: column;
+	gap: 0.3rem;
+}
+
+.title{
+	align-self: flex-start;
+}

@@ -1,0 +1,11 @@
+.mainBlock{
+	display: flex;
+	justify-content: center;
+	margin-top: 30px;
+}
+.btn{
+	width: 200px;
+	height: 30px;
+	border-radius: 20px;
+	border: none;
+}
