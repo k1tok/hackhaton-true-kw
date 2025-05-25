@@ -1,0 +1,31 @@
+.form{
+	padding: 3rem;
+	border-radius: 20px;
+	background-color: rgb(55, 52, 52);
+}
+input[type="text"]{
+	background-color: rgb(181, 177, 177);
+	color: rgb(0, 0, 0);
+	font-family: 'Play';
+	font-size: 16px;
+}
+input[type="submit"]{
+	background-color: rgb(181, 177, 177);
+	color: rgb(0, 0, 0);
+	font-family: 'Play';
+	font-size: 16px;
+}
+select{
+	background-color: rgb(181, 177, 177);
+	color: rgb(0, 0, 0);
+	font-family: 'Play';
+	font-size: 16px;
+}
+label{
+	color: rgb(229, 153, 11);
+}
+
+.title{
+	font-size: 20px;
+	color: rgb(255, 255, 255);
+}
