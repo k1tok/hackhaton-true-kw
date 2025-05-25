@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useStore } from "../../../app/store/store";
 import { headersTable, renderConsumption } from "../config/tableDataConfig";
 import styles from "./../style/TableData.module.css";
+import { fetchData } from "../../../tools/fetchData";
 
 interface ITableData {
 	title: string;
@@ -11,6 +12,12 @@ const TableData = ({ title }: ITableData) => {
 	const { state, setState } = useStore();
 	const handleDelete = (accountId) => {
 		setState((prev) => prev.filter((item) => item.accountId !== accountId));
+	};
+
+	const handleSend = async () => {
+		const req = await fetchData("http://127.0.0.1/check", state);
+		const resp = await req.json();
+		return req;
 	};
 
 	return (
@@ -61,6 +68,9 @@ const TableData = ({ title }: ITableData) => {
 								)}
 						</tbody>
 					</table>
+					{state.length > 0 && (
+						<button onClick={handleSend}>Отправить данные</button>
+					)}
 				</>
 			)}
 		</div>

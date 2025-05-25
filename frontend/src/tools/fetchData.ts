@@ -1,11 +1,6 @@
 import type { IFormInput } from "../entities/EnergyForm/config/energyFormConfig";
 
-interface IFetchData {
-	url: string;
-	data: IFormInput[];
-}
-
-export function fetchData({ url, data }: IFetchData) {
+export function fetchData(url: string, data: IFormInput[]) {
 	return fetch(url, {
 		method: "POST",
 		body: JSON.stringify(data),
