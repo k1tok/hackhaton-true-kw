@@ -1,0 +1,9 @@
+services:
+  auth-app:
+    build: ./backend
+    container_name: app-api
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      - ./backend/.env

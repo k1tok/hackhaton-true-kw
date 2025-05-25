@@ -1,0 +1,80 @@
+basePath: /
+definitions:
+  organization.Organization:
+    properties:
+      accountId:
+        type: integer
+      address:
+        type: string
+      buildingType:
+        type: string
+      consumption:
+        additionalProperties:
+          type: integer
+        type: object
+      isCommercial:
+        type: boolean
+      residentsCount:
+        type: string
+      roomsCount:
+        type: string
+    type: object
+  organization.OrganizationResult:
+    properties:
+      accountId:
+        type: integer
+      isCommercial:
+        type: boolean
+      precision:
+        type: number
+    type: object
+  v1.HTTPError:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8080
+info:
+  contact:
+    name: Flastor
+  description: This is a project for the true kw library.
+  termsOfService: http://swagger.io/terms/
+  title: Hakaton true kw
+  version: "1.0"
+paths:
+  /check:
+    post:
+      consumes:
+      - application/json
+      description: checks targets and returns prediction
+      parameters:
+      - description: request body
+        in: body
+        name: request
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/organization.Organization'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/organization.OrganizationResult'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.HTTPError'
+      summary: Check targets
+      tags:
+      - check
+swagger: "2.0"
